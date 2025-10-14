@@ -1,0 +1,73 @@
+package com.userService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.exception.ResourceNotFoundException;
+import com.repositry.UserRepositry;
+import com.userService.entity.Ratings;
+import com.userService.entity.User;
+import com.userService.service.UserService;
+@Service
+public class ImpUserService implements UserService{
+
+	@Autowired
+	private UserRepositry userRepositry;
+	
+	@Autowired
+	RestTemplate restTemplate; 
+	
+	org.slf4j.Logger a=LoggerFactory.getLogger(ImpUserService.class); 
+	@Override
+	public User saveUser(User user) {
+		// TODO Auto-generated method stub
+		String string = UUID.randomUUID().toString();
+		user.setUserId(string);
+		User save = userRepositry.save(user);
+		
+		return save;
+	}
+
+	@Override
+	public List<User> getAllUser() {
+		// TODO Auto-generated method stub
+		return userRepositry.findAll();
+	}
+
+	@Override 
+	public User getUser(String userId) {
+		// TODO Auto-generated method stub
+		
+				User orElseThrow = userRepositry.findById(userId).orElseThrow(()->new ResourceNotFoundException("user with given id is not found on the server :"+userId));
+	List <Ratings>forObject = restTemplate.getForObject("http://localhost:8083/rating/users/"+orElseThrow.getUserId(), ArrayList.class);
+	
+	forObject.stream().map(rating->{
+		//http://localhost:8083/rating/users/
+		restTemplate.getForObject("http://localhost:8082/hotels/"+rating.getHotelId(), null);
+	});
+	
+	orElseThrow.setRatings(forObject);
+	a.info(forObject.toString());
+	return orElseThrow;
+	}
+
+	@Override
+	public String deleteUser(String useriId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public User updateUser(User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

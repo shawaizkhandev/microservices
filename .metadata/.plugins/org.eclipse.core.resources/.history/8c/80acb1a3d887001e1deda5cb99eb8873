@@ -1,0 +1,60 @@
+package com.userService;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.exception.ResourceNotFoundException;
+import com.repositry.UserRepositry;
+import com.userService.entity.User;
+import com.userService.service.UserService;
+@Service
+public class ImpUserService implements UserService{
+
+	@Autowired
+	private UserRepositry userRepositry;
+	@Autowired
+	RestTemplate restTemplate; 
+	@Override
+	public User saveUser(User user) {
+		// TODO Auto-generated method stub
+		String string = UUID.randomUUID().toString();
+		user.setUserId(string);
+		User save = userRepositry.save(user);
+		
+		return save;
+	}
+
+	@Override
+	public List<User> getAllUser() {
+		// TODO Auto-generated method stub
+		return userRepositry.findAll();
+	}
+
+	@Override 
+	public User getUser(String userId) {
+		// TODO Auto-generated method stub
+		
+				User orElseThrow = userRepositry.findById(userId).orElseThrow(()->new ResourceNotFoundException("user with given id is not found on the server :"+userId));
+	
+	
+	
+	return orElseThrow;
+	}
+
+	@Override
+	public String deleteUser(String useriId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public User updateUser(User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}
