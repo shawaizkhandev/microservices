@@ -1,9 +1,12 @@
 package com.userService.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.exception.ResourceNotFoundException;
 import com.repositry.UserRepositry;
+import com.userService.entity.Hotel;
 import com.userService.entity.Ratings;
 import com.userService.entity.User;
 @Service
@@ -23,7 +27,7 @@ public class ImpUserService implements UserService{
 	@Autowired
 	RestTemplate restTemplate; 
 	
-	org.slf4j.Logger a=LoggerFactory.getLogger(ImpUserService.class); 
+	org.slf4j.Logger logger=LoggerFactory.getLogger(ImpUserService.class); 
 	@Override
 	public User saveUser(User user) {
 		// TODO Auto-generated method stub
@@ -45,15 +49,24 @@ public class ImpUserService implements UserService{
 		// TODO Auto-generated method stub
 		
 				User orElseThrow = userRepositry.findById(userId).orElseThrow(()->new ResourceNotFoundException("user with given id is not found on the server :"+userId));
-//	List <Ratings>forObject = restTemplate.getForObject("http://localhost:8083/rating/users/"+orElseThrow.getUserId(), ArrayList.class);
-//	
-//	forObject.stream().map(rating->{
-//		//http://localhost:8083/rating/users/
-//		restTemplate.getForObject("http://localhost:8082/hotels/"+rating.getHotelId(), null);
-//	});
+	Ratings[]ratingsArray = restTemplate.getForObject("http://localhost:8083/rating/users/"+orElseThrow.getUserId(), Ratings[].class);
+System.err.println("--"+ratingsArray);
+
+	logger.info("--",ratingsArray);
+	
+	List<Ratings> listRating = Arrays.stream(ratingsArray).toList();
+	//	
+	listRating.stream().map(rating->{
+		//http://localhost:8083/rating/users/
+	Hotel hotel =restTemplate.getForObject("http://localhost:8082/hotels/"+rating.getHotelId(), Hotel.class);
+	
+		rating.setHotel(hotel);
+		return rating;
+	}).collect(Collectors.toList());
 	
 //	orElseThrow.setRatings(forObject);
 //	a.info(forObject.toString());
+	orElseThrow.setRatings(listRating);
 	return orElseThrow;
 	}
 
