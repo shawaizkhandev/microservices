@@ -30,5 +30,5 @@ public class User {
 	String userAbout;
 	
 	@Transient
-	List <Ratings>ratings=new ArrayList<>();
+	List <Rating>ratings=new ArrayList<>();
 }

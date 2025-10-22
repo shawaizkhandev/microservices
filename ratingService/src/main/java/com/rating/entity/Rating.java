@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Ratings {
+public class Rating {
 	@Id
 	private String ratingId;
 	private String userId;
